@@ -1,7 +1,17 @@
 syntax = "proto3";
 package model;
-import "model/pagination.proto";
-option go_package = "/pb";
+import "pagination.proto";
+option go_package = "learn-grpc/pb/product";
+
+service ProductService {
+  rpc GetProducts(Empty) returns (Products);
+  rpc GetProduct(Id) returns (Product);
+  rpc CreateProduct(Product) returns (Id);
+  rpc UpdateProduct(Product) returns (Status);
+  rpc DeleteProduct(Id) returns (Status);
+}
+
+message Empty{}
 
 message Products {
   Pagination pagination = 1;
@@ -19,4 +29,12 @@ message Product {
 message Category {
   uint32 id = 1;
   string name = 2;
+}
+
+message Id {
+  uint64 id = 1;
+}
+
+message Status {
+  uint32 status = 1;
 }

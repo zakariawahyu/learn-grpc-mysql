@@ -1,0 +1,2 @@
+- option go_package => untuk initialisation hasil generate dari protoc
+- contoh command generate : protoc --proto_path=model model/*.proto --go_out=$GOPATH/src --go-grpc_out=$GOPATH/src
