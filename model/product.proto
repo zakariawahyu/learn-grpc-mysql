@@ -1,7 +1,7 @@
 syntax = "proto3";
 package model;
 import "pagination.proto";
-option go_package = "learn-grpc/pb/product";
+option go_package = "learn-grpc-mysql/pb/product";
 
 service ProductService {
   rpc GetProducts(Empty) returns (Products);

@@ -1,4 +1,4 @@
-module learn-grpc
+module learn-grpc-mysql
 
 go 1.20
 
