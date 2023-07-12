@@ -69,7 +69,7 @@ func (p *ProductServices) GetProduct(ctx context.Context, id *productPb.Id) (*pr
 	category := productPb.Category{}
 
 	if err := row.Scan(&product.Id, &product.Name, &product.Price, &product.Stock, &category.Id, &category.Name); err != nil {
-		log.Fatal("Error rows data", err.Error())
+		return nil, status.Error(codes.NotFound, err.Error())
 	}
 	product.Category = &category
 
@@ -116,6 +116,63 @@ func (p *ProductServices) CreateProduct(ctx context.Context, productData *produc
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
+
+	return &response, nil
+}
+
+func (p *ProductServices) UpdateProduct(ctx context.Context, productData *productPb.Product) (*productPb.Status, error) {
+	response := productPb.Status{}
+
+	err := p.DB.Transaction(func(tx *gorm.DB) error {
+		category := productPb.Category{
+			Id:   0,
+			Name: productData.GetCategory().GetName(),
+		}
+
+		if err := tx.Table("categories").
+			Where("LCASE(name) = ?", category.GetName()).
+			FirstOrCreate(&category).Error; err != nil {
+			return err
+		}
+
+		product := struct {
+			Id          uint64
+			Name        string
+			Price       float64
+			Stock       uint32
+			Category_id uint32
+		}{
+			Id:          productData.GetId(),
+			Name:        productData.GetName(),
+			Price:       productData.GetPrice(),
+			Stock:       productData.GetStock(),
+			Category_id: category.GetId(),
+		}
+
+		if err := tx.Table("products").Where("id = ?", product.Id).Updates(&product).Error; err != nil {
+			return err
+		}
+
+		response.Status = 1
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &response, nil
+}
+
+func (p *ProductServices) DeleteProduct(ctx context.Context, id *productPb.Id) (*productPb.Status, error) {
+	response := productPb.Status{}
+
+	if err := p.DB.Table("products").Where("id = ?", id.GetId()).Delete(nil).Error; err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	response.Status = 1
 
 	return &response, nil
 }
