@@ -2,6 +2,7 @@ package main
 
 import (
 	"google.golang.org/grpc"
+	"learn-grpc-mysql/cmd/config"
 	"learn-grpc-mysql/cmd/services"
 	productPb "learn-grpc-mysql/pb/product"
 	"log"
@@ -9,7 +10,7 @@ import (
 )
 
 const (
-	port = ":50051"
+	port = ":5051"
 )
 
 func main() {
@@ -18,8 +19,10 @@ func main() {
 		log.Fatal("Failed to listen %v", err.Error())
 	}
 
+	db := config.ConnectDatabase()
+
 	grpcServer := grpc.NewServer()
-	productService := services.ProductServices{}
+	productService := services.ProductServices{DB: db}
 	productPb.RegisterProductServiceServer(grpcServer, &productService)
 
 	log.Printf("Server started at %v", netListen.Addr())

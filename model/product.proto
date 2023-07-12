@@ -4,7 +4,7 @@ import "pagination.proto";
 option go_package = "learn-grpc-mysql/pb/product";
 
 service ProductService {
-  rpc GetProducts(Empty) returns (Products);
+  rpc GetProducts(Page) returns (Products);
   rpc GetProduct(Id) returns (Product);
   rpc CreateProduct(Product) returns (Id);
   rpc UpdateProduct(Product) returns (Status);
@@ -37,4 +37,8 @@ message Id {
 
 message Status {
   uint32 status = 1;
+}
+
+message Page {
+  int64 page = 1;
 }
